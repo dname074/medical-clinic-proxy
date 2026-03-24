@@ -7,7 +7,6 @@ public record PatientDto(
         String idCardNo,
         String phoneNumber,
         LocalDate birthday,
-        String firstName,
-        String lastName
+        UserDto user
         ) {
 }
