@@ -20,20 +20,22 @@ import java.util.List;
 public class GlobalExceptionHandler {
     @ExceptionHandler(MedicalClinicException.class)
     public ResponseEntity<ExceptionDto> handleMedicalClinicException(MedicalClinicException exception) {
-        exceptionLog(exception.getMessage());
+        exceptionLog(exception.getMessage(), exception.getClass().getName());
         return ResponseEntity.status(exception.getStatus()).body(new ExceptionDto(exception.getMessage(), exception.getStatus()));
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ExceptionDto> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException exception) {
-        exceptionLog(exception.getMessage());
+        String message = String.format("Parameter: '%s' must be of type: '%s'",
+                exception.getName(), exception.getRequiredType());
+        exceptionLog(exception.getMessage(), exception.getClass().getName());
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
-        return ResponseEntity.status(httpStatus).body(new ExceptionDto(exception.getMessage(), httpStatus));
+        return ResponseEntity.status(httpStatus).body(new ExceptionDto(message, httpStatus));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ValidationExceptionDto> handleValidationException(MethodArgumentNotValidException exception) {
-        exceptionLog(exception.getMessage());
+        exceptionLog(exception.getMessage(), exception.getClass().getName());
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         List<String> messages = new ArrayList<>();
         exception.getBindingResult().getAllErrors().forEach(error -> messages.add(((FieldError) error).getField() + " - " + error.getDefaultMessage()));
@@ -42,12 +44,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ExceptionDto> handleMissingParameterException(MissingServletRequestParameterException exception) {
-        exceptionLog(exception.getMessage());
+        exceptionLog(exception.getMessage(), exception.getClass().getName());
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         return ResponseEntity.status(httpStatus).body(new ExceptionDto("Missing parameter", httpStatus));
     }
 
-    private void exceptionLog(String message) {
-        log.error("Exception log: {}", message);
+    private void exceptionLog(String message, String exceptionName) {
+        log.error("{} occured, Exception log: {}", exceptionName, message);
     }
 }
