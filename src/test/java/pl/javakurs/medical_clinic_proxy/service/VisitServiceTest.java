@@ -7,10 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.javakurs.medical_clinic_proxy.client.MedicalClinicClient;
-import pl.javakurs.medical_clinic_proxy.dto.DoctorDto;
 import pl.javakurs.medical_clinic_proxy.dto.PageDto;
-import pl.javakurs.medical_clinic_proxy.dto.PatientDto;
-import pl.javakurs.medical_clinic_proxy.dto.UserDto;
 import pl.javakurs.medical_clinic_proxy.dto.VisitDto;
 import pl.javakurs.medical_clinic_proxy.exception.badrequest.BeforeCurrentDateException;
 import pl.javakurs.medical_clinic_proxy.model.Specialization;
@@ -28,6 +25,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static pl.javakurs.medical_clinic_proxy.dataFactory.VisitTestDataFactory.createVisit;
 
 @ExtendWith(MockitoExtension.class)
 public class VisitServiceTest {
@@ -148,17 +146,5 @@ public class VisitServiceTest {
         );
         verify(client, times(1)).assignPatientToVisit(1L, 1L);
         verifyNoMoreInteractions(client);
-    }
-
-    private VisitDto createVisit() {
-        return new VisitDto(
-                LocalDateTime.of(2027, 1, 1, 12, 30, 0),
-                LocalDateTime.of(2027, 1, 1, 13, 0, 0),
-                new DoctorDto(new UserDto("Jan", "Kowalski"), Specialization.DERMATOLOGIST),
-                new PatientDto("email@onet.pl", "001fn", "111999888",
-                        LocalDate.of(2005, 1, 2),
-                        new UserDto("Piotr", "Nowak")
-                )
-        );
     }
 }

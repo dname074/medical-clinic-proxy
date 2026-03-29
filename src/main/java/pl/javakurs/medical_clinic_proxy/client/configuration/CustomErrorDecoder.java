@@ -31,6 +31,9 @@ public class CustomErrorDecoder implements ErrorDecoder {
     }
 
     private String extractMessage(Response response) {
+        if (response.body()==null) {
+            return "Unknown error";
+        }
         try (InputStream bodyIs = response.body().asInputStream()) {
             String body = new String(bodyIs.readAllBytes(), StandardCharsets.UTF_8);
             ObjectMapper mapper = new ObjectMapper();
