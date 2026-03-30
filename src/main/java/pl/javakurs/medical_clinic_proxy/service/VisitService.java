@@ -6,8 +6,11 @@ import org.springframework.stereotype.Service;
 import pl.javakurs.medical_clinic_proxy.client.MedicalClinicClient;
 import pl.javakurs.medical_clinic_proxy.dto.PageDto;
 import pl.javakurs.medical_clinic_proxy.dto.VisitDto;
+import pl.javakurs.medical_clinic_proxy.dto.VisitForPatientDto;
 import pl.javakurs.medical_clinic_proxy.exception.badrequest.BeforeCurrentDateException;
+import pl.javakurs.medical_clinic_proxy.exception.badrequest.WrongDateOrderException;
 import pl.javakurs.medical_clinic_proxy.model.Specialization;
+import pl.javakurs.medical_clinic_proxy.model.Status;
 
 import java.time.Clock;
 import java.time.LocalDate;
@@ -26,22 +29,24 @@ public class VisitService {
         return visitsPage;
     }
 
-    public PageDto<VisitDto> getFreeDoctorVisits(Long doctorId, Integer page, Integer size) {
-        log.info("Process of receiving doctor's free visits started");
-        PageDto<VisitDto> visitsPage = client.getFreeDoctorVisits(doctorId, page, size);
-        log.info("Process of receiving doctor's free visits ended");
+    public PageDto<VisitDto> getDoctorVisits(Long doctorId, Status status, Integer page, Integer size) {
+        log.info("Process of receiving doctor's visits started");
+        PageDto<VisitDto> visitsPage = client.getFreeDoctorVisits(doctorId, status, page, size);
+        log.info("Process of receiving doctor's visits ended");
         return visitsPage;
     }
 
-    public PageDto<VisitDto> getVisitsByDateAndSpecialization(Specialization specialization,
-                                                              LocalDate date,
-                                                              Integer page,
-                                                              Integer size) {
+    public PageDto<VisitForPatientDto> getFilteredVisits(Specialization specialization,
+                                                         LocalDate fromDate, LocalDate toDate,
+                                                         Status status, Integer page, Integer size) {
         log.info("Process of receiving free visits by specialization and date started");
-        if (date.isBefore(LocalDate.now(clock))) {
+        if (fromDate.isBefore(LocalDate.now(clock))) {
             throw new BeforeCurrentDateException("Past visits are no longer available");
         }
-        PageDto<VisitDto> visitsPage = client.getVisitsByDateAndDoctorSpecialization(specialization, date, page, size);
+        if (fromDate.isAfter(toDate)) {
+            throw new WrongDateOrderException("First date must be before second date");
+        }
+        PageDto<VisitForPatientDto> visitsPage = client.getFilteredVisits(specialization, fromDate, toDate, status, page, size);
         log.info("Process of receiving free visits by specialization and date ended");
         return visitsPage;
     }
@@ -50,6 +55,13 @@ public class VisitService {
         log.info("Process of assigning patient to visit started");
         VisitDto visit = client.assignPatientToVisit(visitId, patientId);
         log.info("Process of assigning patient to visit ended");
+        return visit;
+    }
+
+    public VisitDto cancelVisit(Long id) {
+        log.info("Process of canceling visit started");
+        VisitDto visit = client.cancelVisit(id);
+        log.info("Process of canceling visit ended");
         return visit;
     }
 }
