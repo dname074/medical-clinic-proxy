@@ -12,7 +12,7 @@ import pl.javakurs.medical_clinic_proxy.dto.PageDto;
 import pl.javakurs.medical_clinic_proxy.dto.VisitDto;
 import pl.javakurs.medical_clinic_proxy.dto.VisitForPatientDto;
 import pl.javakurs.medical_clinic_proxy.model.Specialization;
-import pl.javakurs.medical_clinic_proxy.model.Status;
+import pl.javakurs.medical_clinic_proxy.model.VisitAvailability;
 
 import java.time.LocalDate;
 
@@ -22,18 +22,21 @@ import java.time.LocalDate;
 )
 public interface MedicalClinicClient {
     @GetMapping("/visits/patients/{id}")
-    PageDto<VisitDto> getPatientVisits(@PathVariable Long id, @RequestParam Integer page, @RequestParam Integer size);
+    PageDto<VisitDto> getPatientVisits(@PathVariable Long id,
+                                       @RequestParam Integer page, @RequestParam Integer size);
     @GetMapping("/visits/doctors/{id}")
-    PageDto<VisitDto> getFreeDoctorVisits(@PathVariable Long id, @RequestParam Status status, @RequestParam Integer page, @RequestParam Integer size);
+    PageDto<VisitDto> getDoctorVisits(@PathVariable Long id, @RequestParam VisitAvailability availability,
+                                      @RequestParam Integer page, @RequestParam Integer size);
     @GetMapping("/visits/doctors")
     PageDto<VisitForPatientDto> getFilteredVisits(@RequestParam(required = false) Specialization specialization,
                                                   @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
                                                   @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
-                                                  @RequestParam Status status,
+                                                  @RequestParam VisitAvailability availability,
                                                   @RequestParam Integer page,
                                                   @RequestParam Integer size);
     @GetMapping("/doctors")
-    PageDto<DoctorDto> getFilteredDoctors(@RequestParam Integer page, @RequestParam Integer size, @RequestParam(required = false) Specialization specialization);
+    PageDto<DoctorDto> getFilteredDoctors(@RequestParam(required = false) Specialization specialization,
+                                          @RequestParam Integer page, @RequestParam Integer size);
     @PatchMapping("/visits/{visitId}/patients/{patientId}")
     VisitDto assignPatientToVisit(@PathVariable Long visitId, @PathVariable Long patientId);
     @PatchMapping("/visits/{id}")

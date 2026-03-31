@@ -10,7 +10,7 @@ import pl.javakurs.medical_clinic_proxy.dto.VisitForPatientDto;
 import pl.javakurs.medical_clinic_proxy.exception.badrequest.BeforeCurrentDateException;
 import pl.javakurs.medical_clinic_proxy.exception.badrequest.WrongDateOrderException;
 import pl.javakurs.medical_clinic_proxy.model.Specialization;
-import pl.javakurs.medical_clinic_proxy.model.Status;
+import pl.javakurs.medical_clinic_proxy.model.VisitAvailability;
 
 import java.time.Clock;
 import java.time.LocalDate;
@@ -29,16 +29,16 @@ public class VisitService {
         return visitsPage;
     }
 
-    public PageDto<VisitDto> getDoctorVisits(Long doctorId, Status status, Integer page, Integer size) {
+    public PageDto<VisitDto> getDoctorVisits(Long doctorId, VisitAvailability visitAvailability, Integer page, Integer size) {
         log.info("Process of receiving doctor's visits started");
-        PageDto<VisitDto> visitsPage = client.getFreeDoctorVisits(doctorId, status, page, size);
+        PageDto<VisitDto> visitsPage = client.getDoctorVisits(doctorId, visitAvailability, page, size);
         log.info("Process of receiving doctor's visits ended");
         return visitsPage;
     }
 
     public PageDto<VisitForPatientDto> getFilteredVisits(Specialization specialization,
                                                          LocalDate fromDate, LocalDate toDate,
-                                                         Status status, Integer page, Integer size) {
+                                                         VisitAvailability visitAvailability, Integer page, Integer size) {
         log.info("Process of receiving free visits by specialization and date started");
         if (fromDate.isBefore(LocalDate.now(clock))) {
             throw new BeforeCurrentDateException("Past visits are no longer available");
@@ -46,7 +46,7 @@ public class VisitService {
         if (fromDate.isAfter(toDate)) {
             throw new WrongDateOrderException("First date must be before second date");
         }
-        PageDto<VisitForPatientDto> visitsPage = client.getFilteredVisits(specialization, fromDate, toDate, status, page, size);
+        PageDto<VisitForPatientDto> visitsPage = client.getFilteredVisits(specialization, fromDate, toDate, visitAvailability, page, size);
         log.info("Process of receiving free visits by specialization and date ended");
         return visitsPage;
     }

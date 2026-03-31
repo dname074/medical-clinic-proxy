@@ -1,0 +1,56 @@
+version: '2'
+
+services:
+  medical-clinic-proxy:
+    container_name: medical-clinic-proxy
+    image: medical-clinic-proxy:latest
+    build:
+      dockerfile: Dockerfile
+    ports:
+      - 8081:8081
+    networks:
+      - medical-clinic_network
+    depends_on:
+      - medical-clinic
+  medical-clinic:
+    container_name: medical-clinic
+    image: medical-clinic:latest
+    ports:
+      - 8080:8080
+    networks:
+      - medical-clinic_network
+    depends_on:
+      - postgresql
+  postgresql:
+    container_name: postgresql
+    image: postgres:18-alpine3.22
+    ports:
+      - 5432:5432
+    networks:
+      - medical-clinic_network
+    environment:
+      - POSTGRES_DB=medical_clinic
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=user
+      - PGDATA=/var/lib/postgresql/data
+    volumes:
+      - medicalclinic_repo_pgdata:/var/lib/postgresql/data
+  pgadmin:
+    container_name: pgadmin
+    image: elestio/pgadmin:REL-9_13
+    ports:
+      - 5433:5433
+    networks:
+      - medical-clinic_network
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=email@onet.pl
+      - PGADMIN_DEFAULT_PASSWORD=password
+      - PGADMIN_LISTEN_PORT=5433
+    depends_on:
+      - postgresql
+networks:
+  medical-clinic_network:
+    driver: bridge
+volumes:
+  medicalclinic_repo_pgdata:
+    external: true

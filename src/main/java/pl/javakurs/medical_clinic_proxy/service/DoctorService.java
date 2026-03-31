@@ -16,7 +16,7 @@ public class DoctorService {
 
     public PageDto<DoctorDto> getFilteredDoctors(Integer page, Integer size, Specialization specialization) {
         log.info("Process of finding filtered doctors started");
-        PageDto<DoctorDto> doctors = client.getFilteredDoctors(page, size, specialization);
+        PageDto<DoctorDto> doctors = client.getFilteredDoctors(specialization, page, size);
         log.info("Process of finding filtered doctors ended");
         return doctors;
     }
