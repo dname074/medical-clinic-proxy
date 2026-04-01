@@ -10,6 +10,7 @@ services:
       - 8081:8081
     networks:
       - medical-clinic_network
+      - prometheus_network
     depends_on:
       - medical-clinic
   medical-clinic:
@@ -19,6 +20,7 @@ services:
       - 8080:8080
     networks:
       - medical-clinic_network
+      - postgres_network
     depends_on:
       - postgresql
   postgresql:
@@ -27,7 +29,7 @@ services:
     ports:
       - 5432:5432
     networks:
-      - medical-clinic_network
+      - postgres_network
     environment:
       - POSTGRES_DB=medical_clinic
       - POSTGRES_USER=user
@@ -41,16 +43,47 @@ services:
     ports:
       - 5433:5433
     networks:
-      - medical-clinic_network
+      - postgres_network
     environment:
       - PGADMIN_DEFAULT_EMAIL=email@onet.pl
       - PGADMIN_DEFAULT_PASSWORD=password
       - PGADMIN_LISTEN_PORT=5433
     depends_on:
       - postgresql
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus
+    ports:
+      - 9090:9090
+    networks:
+      - prometheus_network
+    volumes:
+      - prometheus-data:/prometheus
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    depends_on:
+      - medical-clinic-proxy
+  grafana:
+    container_name: grafana
+    image: grafana/grafana-oss
+    ports:
+      - 3000:3000
+    networks:
+      - prometheus_network
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    depends_on:
+      - prometheus
 networks:
+  postgres_network:
+    driver: bridge
+  prometheus_network:
+    driver: bridge
   medical-clinic_network:
     driver: bridge
 volumes:
   medicalclinic_repo_pgdata:
     external: true
+  prometheus-data:
+  grafana-storage:
