@@ -1,11 +1,11 @@
 package pl.javakurs.medical_clinic_proxy.dto;
 
 import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
 import lombok.Getter;
 import lombok.Setter;
 import pl.javakurs.medical_clinic_proxy.model.Specialization;
-import pl.javakurs.medical_clinic_proxy.model.VisitAvailability;
+import pl.javakurs.medical_clinic_proxy.model.VisitStatus;
 
 import java.time.LocalDate;
 
@@ -13,13 +13,13 @@ import java.time.LocalDate;
 @Setter
 public class FilteredVisitsRequest {
     private Specialization specialization;
-    @Future
+    @FutureOrPresent
     private LocalDate from;
-    @Future
+    @FutureOrPresent
     private LocalDate to;
-    @Future
+    @FutureOrPresent
     private LocalDate date;
-    private VisitAvailability availability = VisitAvailability.FREE;
+    private VisitStatus status;
     private Integer page = 0;
     private Integer size = 10;
 

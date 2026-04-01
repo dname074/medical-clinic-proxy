@@ -12,7 +12,7 @@ import pl.javakurs.medical_clinic_proxy.dto.PageDto;
 import pl.javakurs.medical_clinic_proxy.dto.VisitDto;
 import pl.javakurs.medical_clinic_proxy.dto.VisitForPatientDto;
 import pl.javakurs.medical_clinic_proxy.model.Specialization;
-import pl.javakurs.medical_clinic_proxy.model.VisitAvailability;
+import pl.javakurs.medical_clinic_proxy.model.VisitStatus;
 
 import java.time.LocalDate;
 
@@ -23,20 +23,20 @@ import java.time.LocalDate;
 public interface MedicalClinicClient {
     @GetMapping("/visits/patients/{id}")
     PageDto<VisitDto> getPatientVisits(@PathVariable Long id,
-                                       @RequestParam Integer page, @RequestParam Integer size);
+                                       @RequestParam(required = false) Integer page, @RequestParam(required = false) Integer size);
     @GetMapping("/visits/doctors/{id}")
-    PageDto<VisitDto> getDoctorVisits(@PathVariable Long id, @RequestParam VisitAvailability availability,
-                                      @RequestParam Integer page, @RequestParam Integer size);
-    @GetMapping("/visits/doctors")
+    PageDto<VisitDto> getDoctorVisits(@PathVariable Long id, @RequestParam(required = false) VisitStatus status,
+                                      @RequestParam(required = false) Integer page, @RequestParam(required = false) Integer size);
+    @GetMapping("/visits")
     PageDto<VisitForPatientDto> getFilteredVisits(@RequestParam(required = false) Specialization specialization,
                                                   @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
                                                   @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
-                                                  @RequestParam VisitAvailability availability,
-                                                  @RequestParam Integer page,
-                                                  @RequestParam Integer size);
+                                                  @RequestParam(required = false) VisitStatus status,
+                                                  @RequestParam(required = false) Integer page,
+                                                  @RequestParam(required = false) Integer size);
     @GetMapping("/doctors")
     PageDto<DoctorDto> getFilteredDoctors(@RequestParam(required = false) Specialization specialization,
-                                          @RequestParam Integer page, @RequestParam Integer size);
+                                          @RequestParam(required = false) Integer page, @RequestParam(required = false) Integer size);
     @PatchMapping("/visits/{visitId}/patients/{patientId}")
     VisitDto assignPatientToVisit(@PathVariable Long visitId, @PathVariable Long patientId);
     @PatchMapping("/visits/{id}")

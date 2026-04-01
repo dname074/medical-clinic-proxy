@@ -20,7 +20,7 @@ import pl.javakurs.medical_clinic_proxy.dto.PageDto;
 import pl.javakurs.medical_clinic_proxy.dto.ValidationExceptionDto;
 import pl.javakurs.medical_clinic_proxy.dto.VisitDto;
 import pl.javakurs.medical_clinic_proxy.dto.VisitForPatientDto;
-import pl.javakurs.medical_clinic_proxy.model.VisitAvailability;
+import pl.javakurs.medical_clinic_proxy.model.VisitStatus;
 import pl.javakurs.medical_clinic_proxy.service.VisitService;
 
 @Slf4j
@@ -67,10 +67,10 @@ public class VisitController {
             }
     )
     @GetMapping("/doctor/{id}/visits")
-    public PageDto<VisitDto> getDoctorVisits(@PathVariable @NotNull Long id, @RequestParam(defaultValue = "FREE") VisitAvailability availability,
+    public PageDto<VisitDto> getDoctorVisits(@PathVariable @NotNull Long id, @RequestParam(required = false) VisitStatus status,
                                              @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10") Integer size) {
-        log.info("Received GET /visits/doctors/{} request with params status = {}, page = {} and size = {}", id, availability, page, size);
-        return service.getDoctorVisits(id, availability, page, size);
+        log.info("Received GET /visits/doctors/{} request with params status = {}, page = {} and size = {}", id, status, page, size);
+        return service.getDoctorVisits(id, status, page, size);
     }
 
     @Operation(summary = "Get visits filtered by date and specialization")
@@ -95,14 +95,9 @@ public class VisitController {
     )
     @GetMapping("/patient/visits")
     public PageDto<VisitForPatientDto> getFilteredVisits(@Valid FilteredVisitsRequest request) {
-        log.info("Received GET /visits/doctors request with params fromDate = {}, toDate = {}, specialization = {}, status = {}, page = {} and size = {}",
-                request.getFrom(), request.getTo(), request.getSpecialization(), request.getAvailability(), request.getPage(), request.getSize());
-        if (request.getFrom() != null && request.getTo() != null) {
-            return service.getFilteredVisits(request.getSpecialization(), request.getFrom(), request.getTo(),
-                    request.getAvailability(), request.getPage(), request.getSize());
-        }
-        return service.getFilteredVisits(request.getSpecialization(), request.getDate(), request.getDate(),
-                request.getAvailability(), request.getPage(), request.getSize());
+        log.info("Received GET /visits/doctors request with params fromDate = {}, toDate = {}, exact date= {}, specialization = {}, status = {}, page = {} and size = {}",
+                request.getFrom(), request.getTo(), request.getDate(), request.getSpecialization(), request.getStatus(), request.getPage(), request.getSize());
+        return service.getFilteredVisits(request.getSpecialization(), request.getDate(), request.getFrom(), request.getTo(), request.getStatus(), request.getPage(), request.getSize());
     }
 
     @Operation(summary = "Assign patient to visit")

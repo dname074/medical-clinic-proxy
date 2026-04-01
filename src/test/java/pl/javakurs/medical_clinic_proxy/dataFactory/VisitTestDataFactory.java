@@ -16,7 +16,7 @@ public class VisitTestDataFactory {
         return new VisitDto(
                 LocalDateTime.of(2027, 1, 1, 12, 30, 0),
                 LocalDateTime.of(2027, 1, 1, 13, 0, 0),
-                VisitStatus.CURRENT,
+                VisitStatus.BOOKED,
                 createDoctor(),
                 new PatientDto("email@onet.pl", "001fn", "111999888",
                         LocalDate.of(2005, 1, 2),
@@ -29,7 +29,7 @@ public class VisitTestDataFactory {
         return new VisitDto(
                 LocalDateTime.of(2027, 1, 1, 12, 30, 0),
                 LocalDateTime.of(2027, 1, 1, 13, 0, 0),
-                VisitStatus.CURRENT,
+                VisitStatus.AVAILABLE,
                 createDoctor(),
                 null
         );
@@ -49,7 +49,7 @@ public class VisitTestDataFactory {
         return new VisitForPatientDto(
                 LocalDateTime.of(2027, 1, 1, 12, 30, 0),
                 LocalDateTime.of(2027, 1, 1, 13, 0, 0),
-                VisitStatus.CURRENT,
+                VisitStatus.AVAILABLE,
                 createDoctor()
         );
     }

@@ -10,7 +10,7 @@ import pl.javakurs.medical_clinic_proxy.dto.VisitForPatientDto;
 import pl.javakurs.medical_clinic_proxy.exception.badrequest.BeforeCurrentDateException;
 import pl.javakurs.medical_clinic_proxy.exception.badrequest.WrongDateOrderException;
 import pl.javakurs.medical_clinic_proxy.model.Specialization;
-import pl.javakurs.medical_clinic_proxy.model.VisitAvailability;
+import pl.javakurs.medical_clinic_proxy.model.VisitStatus;
 
 import java.time.Clock;
 import java.time.LocalDate;
@@ -29,24 +29,18 @@ public class VisitService {
         return visitsPage;
     }
 
-    public PageDto<VisitDto> getDoctorVisits(Long doctorId, VisitAvailability visitAvailability, Integer page, Integer size) {
+    public PageDto<VisitDto> getDoctorVisits(Long doctorId, VisitStatus status, Integer page, Integer size) {
         log.info("Process of receiving doctor's visits started");
-        PageDto<VisitDto> visitsPage = client.getDoctorVisits(doctorId, visitAvailability, page, size);
+        PageDto<VisitDto> visitsPage = client.getDoctorVisits(doctorId, status, page, size);
         log.info("Process of receiving doctor's visits ended");
         return visitsPage;
     }
 
-    public PageDto<VisitForPatientDto> getFilteredVisits(Specialization specialization,
-                                                         LocalDate fromDate, LocalDate toDate,
-                                                         VisitAvailability visitAvailability, Integer page, Integer size) {
+    public PageDto<VisitForPatientDto> getFilteredVisits(Specialization specialization, LocalDate date, LocalDate from, LocalDate to, VisitStatus status, Integer page, Integer size) {
         log.info("Process of receiving free visits by specialization and date started");
-        if (fromDate.isBefore(LocalDate.now(clock))) {
-            throw new BeforeCurrentDateException("Past visits are no longer available");
-        }
-        if (fromDate.isAfter(toDate)) {
-            throw new WrongDateOrderException("First date must be before second date");
-        }
-        PageDto<VisitForPatientDto> visitsPage = client.getFilteredVisits(specialization, fromDate, toDate, visitAvailability, page, size);
+        PageDto<VisitForPatientDto> visitsPage = (date != null)
+                ? getVisitsAndValidate(specialization, date, date, status, page, size)
+                : getVisitsAndValidate(specialization, from, to, status, page, size);
         log.info("Process of receiving free visits by specialization and date ended");
         return visitsPage;
     }
@@ -63,5 +57,22 @@ public class VisitService {
         VisitDto visit = client.cancelVisit(id);
         log.info("Process of canceling visit ended");
         return visit;
+    }
+
+    private PageDto<VisitForPatientDto> getVisitsAndValidate(Specialization specialization, LocalDate from, LocalDate to, VisitStatus status, Integer page, Integer size) {
+        validateVisit(from, to);
+        return client.getFilteredVisits(specialization, from, to, status, page, size);
+    }
+
+    private void validateVisit(LocalDate fromDate, LocalDate toDate) {
+        if (fromDate.equals(toDate)) {
+            return;
+        }
+        if (fromDate.isBefore(LocalDate.now(clock))) {
+            throw new BeforeCurrentDateException("Past visits are no longer available");
+        }
+        if (fromDate.isAfter(toDate)) {
+            throw new WrongDateOrderException("First date must be before second date");
+        }
     }
 }
