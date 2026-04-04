@@ -50,6 +50,8 @@ services:
       - PGADMIN_LISTEN_PORT=5433
     depends_on:
       - postgresql
+    volumes:
+      - medicalclinic_repo_pgadmin_data:/var/lib/pgadmin
   prometheus:
     container_name: prometheus
     image: prom/prometheus
@@ -84,6 +86,8 @@ networks:
     driver: bridge
 volumes:
   medicalclinic_repo_pgdata:
+    external: true
+  medicalclinic_repo_pgadmin_data:
     external: true
   prometheus-data:
   grafana-storage:
