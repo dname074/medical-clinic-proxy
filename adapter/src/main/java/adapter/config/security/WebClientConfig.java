@@ -1,4 +1,4 @@
-//package pl.javakurs.medical_clinic_proxy.adapter.security;
+//package adapter.security;
 //
 //import org.springframework.context.annotation.Bean;
 //import org.springframework.context.annotation.Configuration;
