@@ -14,7 +14,7 @@ import java.time.LocalDate;
 
 @RequiredArgsConstructor
 @Component
-public class MedicalClinicClientImpl implements MedicalClinicClientProvider {
+class MedicalClinicClientImpl implements MedicalClinicClientProvider {
     private final MedicalClinicClient client;
     private final DoctorMapper doctorMapper;
     private final VisitMapper visitMapper;

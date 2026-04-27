@@ -6,7 +6,7 @@ import model.Page;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class PageMapper {
+class PageMapper {
     <T,R> PageDto<R> toDto(Page<T> page, Function<T, R> mapper) {
         return new PageDto<>(
             page.content().stream().map(mapper).collect(Collectors.toList()),

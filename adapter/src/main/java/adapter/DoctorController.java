@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-public class DoctorController {
+class DoctorController {
     private final DoctorServiceProvider service;
     private final DoctorMapper doctorMapper;
     private final PageMapper pageMapper;

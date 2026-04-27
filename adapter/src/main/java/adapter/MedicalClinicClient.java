@@ -20,7 +20,7 @@ import java.time.LocalDate;
         name = "medicalclinicClient",
         configuration = MedicalClinicClientConfiguration.class
 )
-public interface MedicalClinicClient {
+interface MedicalClinicClient {
     @GetMapping("/visits/patients/{id}")
     PageDto<VisitDto> getPatientVisits(@PathVariable Long id,
                                        @RequestParam(required = false) Integer page, @RequestParam(required = false) Integer size);

@@ -6,7 +6,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication
 @EnableFeignClients
-public class MedicalClinicProxyApplication {
+class MedicalClinicProxyApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(MedicalClinicProxyApplication.class, args);

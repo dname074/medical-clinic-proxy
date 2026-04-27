@@ -1,6 +1,6 @@
 package adapter.client.configuration;
 
-import adapter.config.security.TokenService;
+//import adapter.config.security.TokenService;
 import feign.RequestInterceptor;
 import feign.codec.ErrorDecoder;
 import feign.okhttp.OkHttpClient;
@@ -15,7 +15,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 @Configuration
 @RequiredArgsConstructor
 public class MedicalClinicClientConfiguration {
-    private final TokenService tokenService;
+//    private final TokenService tokenService;
 
     @Bean
     public OkHttpClient client() {
@@ -27,19 +27,19 @@ public class MedicalClinicClientConfiguration {
         return new CustomErrorDecoder();
     }
 
-    @Bean
-    public RequestInterceptor oauth2RequestInterceptor() {
-        return requestTemplate -> {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth instanceof OAuth2AuthenticationToken oauthToken) {
-                OAuth2AuthorizedClient client = tokenService.getAuthorizedClient(oauthToken);
-                if (client != null) {
-                    System.out.println(client.getAccessToken().getTokenValue());
-                    requestTemplate.header("Authorization", "Bearer " + client.getAccessToken().getTokenValue());
-                }
-            } else {
-                System.out.println("model.User is not logged in or token is not set");
-            }
-        };
-    }
+//    @Bean
+//    public RequestInterceptor oauth2RequestInterceptor() {
+//        return requestTemplate -> {
+//            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//            if (auth instanceof OAuth2AuthenticationToken oauthToken) {
+//                OAuth2AuthorizedClient client = tokenService.getAuthorizedClient(oauthToken);
+//                if (client != null) {
+//                    System.out.println(client.getAccessToken().getTokenValue());
+//                    requestTemplate.header("Authorization", "Bearer " + client.getAccessToken().getTokenValue());
+//                }
+//            } else {
+//                System.out.println("model.User is not logged in or token is not set");
+//            }
+//        };
+//    }
 }

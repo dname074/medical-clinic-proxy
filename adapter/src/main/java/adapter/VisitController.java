@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-public class VisitController {
+class VisitController {
     private final VisitServiceProvider service;
     private final PageMapper pageMapper;
     private final VisitMapper visitMapper;

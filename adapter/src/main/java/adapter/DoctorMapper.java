@@ -5,7 +5,7 @@ import model.Doctor;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
-public interface DoctorMapper {
+interface DoctorMapper {
     DoctorDto toDto(Doctor doctor);
     Doctor toPojo(DoctorDto doctorDto);
 }

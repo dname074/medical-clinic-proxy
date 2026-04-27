@@ -18,7 +18,7 @@ import java.util.List;
 
 @Slf4j
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+class GlobalExceptionHandler {
     @ExceptionHandler(MedicalClinicException.class)
     public ResponseEntity<ExceptionDto> handleMedicalClinicException(MedicalClinicException exception) {
         exceptionLog(exception.getMessage(), exception.getClass().getName());

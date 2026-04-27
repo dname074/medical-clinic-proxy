@@ -1,7 +1,5 @@
-package adapter.config;
+package adapter;
 
-import adapter.MedicalClinicClientImpl;
-import adapter.PageMapper;
 import domain.DoctorServiceImpl;
 import domain.DoctorServiceProvider;
 import domain.VisitServiceImpl;
