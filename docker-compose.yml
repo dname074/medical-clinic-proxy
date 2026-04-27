@@ -15,7 +15,7 @@ services:
     depends_on:
       - medical-clinic
     environment:
-      - SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER-URI=http://keycloak:8180/realms/medical-clinic-dev
+#      - SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER-URI=http://keycloak:8180/realms/medical-clinic-dev
       - SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_MEDICALCLINICCLIENT_URL=http://medical-clinic:8080/
   medical-clinic:
     container_name: medical-clinic
