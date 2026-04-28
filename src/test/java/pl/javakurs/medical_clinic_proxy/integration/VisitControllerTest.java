@@ -1,0 +1,238 @@
+//package pl.javakurs.medical_clinic_proxy.integration;
+//
+//import com.fasterxml.jackson.databind.ObjectMapper;
+//import com.github.tomakehurst.wiremock.WireMockServer;
+//import com.github.tomakehurst.wiremock.client.WireMock;
+//import org.junit.jupiter.api.BeforeEach;
+//import org.junit.jupiter.api.Test;
+//import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+//import org.springframework.boot.test.context.SpringBootTest;
+//import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
+//import org.springframework.http.MediaType;
+//import org.springframework.test.web.servlet.MockMvc;
+//import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+//import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+//import pl.javakurs.medical_clinic_proxy.dto.PageDto;
+//import pl.javakurs.medical_clinic_proxy.dto.VisitDto;
+//import pl.javakurs.medical_clinic_proxy.dto.VisitForPatientDto;
+//import pl.javakurs.medical_clinic_proxy.model.Specialization;
+//
+//import java.time.LocalDate;
+//import java.util.List;
+//
+//import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+//import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+//import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
+//import static com.github.tomakehurst.wiremock.client.WireMock.patchRequestedFor;
+//import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+//import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+//import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+//import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
+//import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+//import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+//import static pl.javakurs.medical_clinic_proxy.dataFactory.VisitTestDataFactory.createFreeVisit;
+//import static pl.javakurs.medical_clinic_proxy.dataFactory.VisitTestDataFactory.createVisit;
+//import static pl.javakurs.medical_clinic_proxy.dataFactory.VisitTestDataFactory.createVisitForPatient;
+//
+//@SpringBootTest
+//@AutoConfigureWireMock(port = 8085)
+//@AutoConfigureMockMvc
+//public class VisitControllerTest {
+//    @Autowired
+//    MockMvc mockMvc;
+//    @Autowired
+//    WireMockServer medicalClinicClient;
+//    @Autowired
+//    ObjectMapper mapper;
+//
+//    @BeforeEach
+//    void setup() {
+//        medicalClinicClient.resetAll();
+//    }
+//
+//    @Test
+//    void getPatientVisits_CorrectDataPassed_VisitsPageReturned() throws Exception {
+//        int page = 0;
+//        int size = 1;
+//        List<VisitDto> visits = List.of(createVisit());
+//        PageDto<VisitDto> pageDto = new PageDto<>(visits, 1, 0, 1);
+//        medicalClinicClient.stubFor(WireMock.get("/visits/patients/1?page=0&size=1")
+//                .willReturn(aResponse()
+//                        .withStatus(200)
+//                        .withHeader(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+//                        .withBody(mapper.writeValueAsString(pageDto))
+//                ));
+//        mockMvc.perform(MockMvcRequestBuilders.get("/patient/1/visits")
+//                        .param("page", String.valueOf(page))
+//                        .param("size", String.valueOf(size)))
+//                .andDo(print())
+//                .andExpect(MockMvcResultMatchers.status().isOk())
+//                .andExpect(jsonPath("$.content[0].startDate").value("2027-01-01T12:30:00"))
+//                .andExpect(jsonPath("$.content[0].endDate").value("2027-01-01T13:00:00"))
+//                .andExpect(jsonPath("$.content[0].doctor.user.firstName").value("Jan"))
+//                .andExpect(jsonPath("$.content[0].doctor.user.lastName").value("Kowalski"))
+//                .andExpect(jsonPath("$.content[0].patient.user.firstName").value("Piotr"))
+//                .andExpect(jsonPath("$.content[0].patient.user.lastName").value("Nowak"))
+//                .andExpect(jsonPath("$.totalPages").value(1))
+//                .andExpect(jsonPath("$.pageNumber").value(0))
+//                .andExpect(jsonPath("$.pageSize").value(1));
+//        verify(1, getRequestedFor(urlPathEqualTo("/visits/patients/1"))
+//                .withQueryParam("page", equalTo("0"))
+//                .withQueryParam("size", equalTo("1")));
+//    }
+//
+//    @Test
+//    void getDoctorVisits_CorrectDataPassed_FreeVisitsPageReturned() throws Exception {
+//        int page = 0;
+//        int size = 1;
+//        VisitAvailability availability = VisitAvailability.FREE;
+//        List<VisitDto> visits = List.of(createFreeVisit());
+//        PageDto<VisitDto> pageDto = new PageDto<>(visits, 1, 0, 1);
+//        medicalClinicClient.stubFor(WireMock.get("/visits/doctors/1?availability=FREE&page=0&size=1")
+//                .willReturn(aResponse()
+//                        .withStatus(200)
+//                        .withHeader(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+//                        .withBody(mapper.writeValueAsString(pageDto))
+//                ));
+//        mockMvc.perform(MockMvcRequestBuilders.get("/doctor/1/visits")
+//                        .param("availability", String.valueOf(availability))
+//                        .param("page", String.valueOf(page))
+//                        .param("size", String.valueOf(size)))
+//                .andDo(print())
+//                .andExpect(MockMvcResultMatchers.status().isOk())
+//                .andExpect(jsonPath("$.content[0].startDate").value("2027-01-01T12:30:00"))
+//                .andExpect(jsonPath("$.content[0].endDate").value("2027-01-01T13:00:00"))
+//                .andExpect(jsonPath("$.content[0].doctor.user.firstName").value("Jan"))
+//                .andExpect(jsonPath("$.content[0].doctor.user.lastName").value("Kowalski"))
+//                .andExpect(jsonPath("$.content[0].patient").doesNotExist())
+//                .andExpect(jsonPath("$.totalPages").value(1))
+//                .andExpect(jsonPath("$.pageNumber").value(0))
+//                .andExpect(jsonPath("$.pageSize").value(1));
+//        verify(1, getRequestedFor(urlPathEqualTo("/visits/doctors/1"))
+//                .withQueryParam("page", equalTo("0"))
+//                .withQueryParam("size", equalTo("1"))
+//                .withQueryParam("availability", equalTo("FREE")));
+//    }
+//
+//    @Test
+//    void getDoctorVisits_CorrectDataPassed_VisitsPageReturned() throws Exception {
+//        int page = 0;
+//        int size = 1;
+//        VisitAvailability availability = VisitAvailability.ALL;
+//        List<VisitDto> visits = List.of(createVisit());
+//        PageDto<VisitDto> pageDto = new PageDto<>(visits, 1, 0, 1);
+//        medicalClinicClient.stubFor(WireMock.get("/visits/doctors/1?availability=ALL&page=0&size=1")
+//                .willReturn(aResponse()
+//                        .withStatus(200)
+//                        .withHeader(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+//                        .withBody(mapper.writeValueAsString(pageDto))
+//                ));
+//        mockMvc.perform(MockMvcRequestBuilders.get("/doctor/1/visits")
+//                        .param("availability", String.valueOf(availability))
+//                        .param("page", String.valueOf(page))
+//                        .param("size", String.valueOf(size)))
+//                .andDo(print())
+//                .andExpect(MockMvcResultMatchers.status().isOk())
+//                .andExpect(jsonPath("$.content[0].startDate").value("2027-01-01T12:30:00"))
+//                .andExpect(jsonPath("$.content[0].endDate").value("2027-01-01T13:00:00"))
+//                .andExpect(jsonPath("$.content[0].doctor.user.firstName").value("Jan"))
+//                .andExpect(jsonPath("$.content[0].doctor.user.lastName").value("Kowalski"))
+//                .andExpect(jsonPath("$.content[0].patient.user.firstName").value("Piotr"))
+//                .andExpect(jsonPath("$.content[0].patient.user.lastName").value("Nowak"))
+//                .andExpect(jsonPath("$.totalPages").value(1))
+//                .andExpect(jsonPath("$.pageNumber").value(0))
+//                .andExpect(jsonPath("$.pageSize").value(1));
+//        verify(1, getRequestedFor(urlPathEqualTo("/visits/doctors/1"))
+//                .withQueryParam("page", equalTo("0"))
+//                .withQueryParam("size", equalTo("1"))
+//                .withQueryParam("availability", equalTo("ALL")));
+//    }
+//
+//    @Test
+//    void getFilteredVisits_CorrectDataPassed_VisitsPageReturned() throws Exception {
+//        Specialization specialization = Specialization.DERMATOLOGIST;
+//        LocalDate date = LocalDate.of(2027, 1, 1);
+//        VisitAvailability availability = VisitAvailability.ALL;
+//        int page = 0;
+//        int size = 1;
+//        List<VisitForPatientDto> visits = List.of(createVisitForPatient());
+//        PageDto<VisitForPatientDto> pageDto = new PageDto<>(visits, 1, 0, 1);
+//        medicalClinicClient.stubFor(WireMock.get("/visits/doctors?specialization=DERMATOLOGIST&from=2027-01-01&to=2027-01-01&availability=ALL&page=0&size=1")
+//                .willReturn(aResponse()
+//                        .withStatus(200)
+//                        .withHeader(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+//                        .withBody(mapper.writeValueAsString(pageDto))
+//                ));
+//        mockMvc.perform(MockMvcRequestBuilders.get("/patient/visits")
+//                        .param("specialization", String.valueOf(specialization))
+//                        .param("date", String.valueOf(date))
+//                        .param("availability", String.valueOf(availability))
+//                        .param("page", String.valueOf(page))
+//                        .param("size", String.valueOf(size)))
+//                .andDo(print())
+//                .andExpect(MockMvcResultMatchers.status().isOk())
+//                .andExpect(jsonPath("$.content[0].startDate").value("2027-01-01T12:30:00"))
+//                .andExpect(jsonPath("$.content[0].endDate").value("2027-01-01T13:00:00"))
+//                .andExpect(jsonPath("$.content[0].doctor.user.firstName").value("Jan"))
+//                .andExpect(jsonPath("$.content[0].doctor.user.lastName").value("Kowalski"))
+//                .andExpect(jsonPath("$.totalPages").value(1))
+//                .andExpect(jsonPath("$.pageNumber").value(0))
+//                .andExpect(jsonPath("$.pageSize").value(1));
+//        verify(1, getRequestedFor(urlPathEqualTo("/visits/doctors"))
+//                .withQueryParam("specialization", equalTo("DERMATOLOGIST"))
+//                .withQueryParam("from", equalTo("2027-01-01"))
+//                .withQueryParam("to", equalTo("2027-01-01"))
+//                .withQueryParam("availability", equalTo(String.valueOf(availability)))
+//                .withQueryParam("page", equalTo("0"))
+//                .withQueryParam("size", equalTo("1")));
+//    }
+//
+//    @Test
+//    void assignPatientToVisit_CorrectDataPassed_VisitReturned() throws Exception {
+//        Long visitId = 1L;
+//        Long patientId = 1L;
+//        VisitDto visit = createVisit();
+//
+//        medicalClinicClient.stubFor(WireMock.patch(urlEqualTo("/visits/1/patients/1"))
+//                .willReturn(aResponse()
+//                        .withStatus(200)
+//                        .withHeader(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+//                        .withBody(mapper.writeValueAsString(visit))
+//                ));
+//        mockMvc.perform(MockMvcRequestBuilders.patch("/patient/{patientId}/visits/{visitId}", patientId, visitId))
+//                .andDo(print())
+//                .andExpect(MockMvcResultMatchers.status().isOk())
+//                .andExpect(jsonPath("$.startDate").value("2027-01-01T12:30:00"))
+//                .andExpect(jsonPath("$.endDate").value("2027-01-01T13:00:00"))
+//                .andExpect(jsonPath("$.doctor.user.firstName").value("Jan"))
+//                .andExpect(jsonPath("$.doctor.user.lastName").value("Kowalski"))
+//                .andExpect(jsonPath("$.patient.user.firstName").value("Piotr"))
+//                .andExpect(jsonPath("$.patient.user.lastName").value("Nowak"));
+//        verify(1, patchRequestedFor(urlEqualTo("/visits/1/patients/1")));
+//    }
+//
+//    @Test
+//    void cancelVisit_CorrectDataPassed_VisitReturned() throws Exception {
+//        Long visitId = 1L;
+//        Long patientId = 1L;
+//        VisitDto visit = createVisit();
+//
+//        medicalClinicClient.stubFor(WireMock.patch(urlEqualTo("/visits/1"))
+//                .willReturn(aResponse()
+//                        .withStatus(200)
+//                        .withHeader(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+//                        .withBody(mapper.writeValueAsString(visit))
+//                ));
+//        mockMvc.perform(MockMvcRequestBuilders.patch("/doctor/visits/{visitId}", patientId, visitId))
+//                .andDo(print())
+//                .andExpect(MockMvcResultMatchers.status().isOk())
+//                .andExpect(jsonPath("$.startDate").value("2027-01-01T12:30:00"))
+//                .andExpect(jsonPath("$.endDate").value("2027-01-01T13:00:00"))
+//                .andExpect(jsonPath("$.doctor.user.firstName").value("Jan"))
+//                .andExpect(jsonPath("$.doctor.user.lastName").value("Kowalski"))
+//                .andExpect(jsonPath("$.patient.user.firstName").value("Piotr"))
+//                .andExpect(jsonPath("$.patient.user.lastName").value("Nowak"));
+//        verify(1, patchRequestedFor(urlEqualTo("/visits/1")));
+//    }
+//}

@@ -1,0 +1,103 @@
+version: '2'
+
+services:
+  medical-clinic-proxy:
+    container_name: medical-clinic-proxy
+    image: medical-clinic-proxy:latest
+    build:
+      dockerfile: Dockerfile
+    ports:
+      - 8081:8081
+    networks:
+      - medical-clinic_network
+      - prometheus_network
+      - keycloak_network
+    depends_on:
+      - medical-clinic
+    environment:
+#      - SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER-URI=http://keycloak:8180/realms/medical-clinic-dev
+      - SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_MEDICALCLINICCLIENT_URL=http://medical-clinic:8080/
+  medical-clinic:
+    container_name: medical-clinic
+    image: medical-clinic:latest
+    ports:
+      - 8080:8080
+    networks:
+      - medical-clinic_network
+      - postgres_network
+      - keycloak_network
+    depends_on:
+      - postgresql
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgresql:5432/medical_clinic
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER-URI=http://keycloak:8180/realms/medical-clinic-dev
+  postgresql:
+    container_name: postgresql
+    image: postgres:18-alpine3.22
+    ports:
+      - 5432:5432
+    networks:
+      - postgres_network
+    environment:
+      - POSTGRES_DB=medical_clinic
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=user
+      - PGDATA=/var/lib/postgresql/data
+    volumes:
+      - medicalclinic_repo_pgdata:/var/lib/postgresql/data
+  pgadmin:
+    container_name: pgadmin
+    image: elestio/pgadmin:REL-9_13
+    ports:
+      - 5433:5433
+    networks:
+      - postgres_network
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=email@onet.pl
+      - PGADMIN_DEFAULT_PASSWORD=password
+      - PGADMIN_LISTEN_PORT=5433
+    depends_on:
+      - postgresql
+    volumes:
+      - medicalclinic_repo_pgadmin_data:/var/lib/pgadmin
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus
+    ports:
+      - 9090:9090
+    networks:
+      - prometheus_network
+    volumes:
+      - prometheus-data:/prometheus
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    depends_on:
+      - medical-clinic-proxy
+  grafana:
+    container_name: grafana
+    image: grafana/grafana-oss
+    ports:
+      - 3000:3000
+    networks:
+      - prometheus_network
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    depends_on:
+      - prometheus
+networks:
+  postgres_network:
+    driver: bridge
+  prometheus_network:
+    driver: bridge
+  medical-clinic_network:
+    driver: bridge
+  keycloak_network:
+    external: true
+volumes:
+  medicalclinic_repo_pgdata:
+    external: true
+  medicalclinic_repo_pgadmin_data:
+    external: true
+  prometheus-data:
+  grafana-storage:
